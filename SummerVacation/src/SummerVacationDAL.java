@@ -48,4 +48,18 @@ public class SummerVacationDAL
             return parks;
         }
       }
+
+
+      public boolean TryExecutingAStoredProcedure(String databaseName, String userName, String password) {
+        CallableStatement myStoredProcedureCall = connection.prepareCall("{Call addNewPark()}");
+        ResultSet myResultSet = myStoredProcedureCall.executeQuery();
+
+        while (myResultSet.next()) {
+            String myParkName = myResultSet.getString("parkName");
+            String myAddress = myResultSet.getString("address");
+            String myState = myResultSet.getString("myAddress");
+            String myZipCode = myResultSet.getString("myState");
+    
+        }
+      }
 }

@@ -1,6 +1,8 @@
 import java.io.Console;
 import java.util.List;
 import java.util.Scanner;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
 
 public class SummerVacationPresentationLayer 
 {
@@ -14,6 +16,12 @@ public class SummerVacationPresentationLayer
         Console console = System.console();
         char[] password = console.readPassword();
         return new SummerVacationDAL("Vacation", userName, new String(password));
+    }
+
+    @Test
+    public void testGetDal() {
+        SummerVacationDAL dal = SummerVacationPresentationLayer.GetDAL();
+        assertNotNull(dal);
     }
     public static void main(String[] args)
     {
