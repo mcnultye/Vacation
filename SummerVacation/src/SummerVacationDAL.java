@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SummerVacationDAL
 {
@@ -50,16 +51,54 @@ public class SummerVacationDAL
       }
 
 
-      public boolean TryExecutingAStoredProcedure(String databaseName, String userName, String password) {
-        CallableStatement myStoredProcedureCall = connection.prepareCall("{Call addNewPark()}");
-        ResultSet myResultSet = myStoredProcedureCall.executeQuery();
-
-        while (myResultSet.next()) {
-            String myParkName = myResultSet.getString("parkName");
-            String myAddress = myResultSet.getString("address");
-            String myState = myResultSet.getString("myAddress");
-            String myZipCode = myResultSet.getString("myState");
-    
+      public boolean addPark(String parkName, String address, String state, String zipCode) {
+        try {
+        CallableStatement addParkProcedure = connection.prepareCall("{Call addNewPark(?, ?, ?, ?)}");
+        addParkProcedure.setString(1, parkName);
+            addParkProcedure.setString(2, address);
+            addParkProcedure.setString(3, state);
+            addParkProcedure.setString(4, zipCode);
+            addParkProcedure.execute();
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("Failed to add park: " + ex.getMessage());
+            return false;
         }
+        }
+        public boolean addActivity(String activityName, int numPlayers) {
+            try {
+                CallableStatement addActivityProcedure = connection.prepareCall("{CALL AddActivity(?, ?)}");
+                addActivityProcedure.setString(1, activityName);
+                addActivityProcedure.setInt(2, numPlayers);
+                addActivityProcedure.execute();
+                return true;
+            } catch (SQLException ex) {
+                System.out.println("Failed to add activity: " + ex.getMessage());
+                return false;
+            }
+        }
+
+        public boolean insertActivitiesForParks(Map<String, List<String>> parksAndActivities) {
+        try {
+            PreparedStatement insertStatement = connection.prepareStatement(
+                    "INSERT INTO Plan (ActivityName, ParkName) VALUES (?, ?)");
+
+            for (Map.Entry<String, List<String>> entry : parksAndActivities.entrySet()) {
+                String parkName = entry.getKey();
+                List<String> activities = entry.getValue();
+
+                for (String activity : activities) {
+                    insertStatement.setString(1, activity);
+                    insertStatement.setString(2, parkName);
+                    insertStatement.addBatch();
+                }
+            }
+
+            insertStatement.executeBatch();
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("Failed to insert activities for parks: " + ex.getMessage());
+            return false;
+        }
+    }
       }
-}
